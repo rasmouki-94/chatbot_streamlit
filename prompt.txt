@@ -1,0 +1,450 @@
+Tu es un ingénieur software senior spécialisé en Python et UX.
+
+OBJECTIF
+Créer une application Streamlit complète (production-ready) dans ce repo vide.
+Il s’agit d’un chatbot interactif qui réalise un diagnostic des process opérationnels en PME.
+
+CONTRAINTES GLOBALES
+- Application en Python avec Streamlit.
+- UX fluide type chatbot (bulles gauche/droite).
+- Barre de progression dynamique fiable.
+- UTF-8 strict (accents + emojis doivent fonctionner).
+- Responsive mobile.
+- Sauvegarde des réponses en CSV.
+- Envoi automatique d’un email admin à chaque complétionn mail minimaliste style années 2000.
+- Code propre, modulaire, maintenable.
+- Compatible Streamlit Cloud.
+- la fenêtre du chat doit défiler au fur et à mesure des questions/réponses
+- design ultra minimaliste épuré façon iOS et MacOS
+- l'app ne doit pas avoir de frictions pour l'utilisateur et doit être orientée conversion
+- l'app ne propose pas de booker un créneau 
+
+========================
+STRUCTURE DU PROJET
+========================
+
+Créer les fichiers suivants :
+
+- app.py
+- requirements.txt
+- utils/scoring.py
+- utils/emailer.py
+- utils/storage.py
+- static/styles.css
+- .streamlit/config.toml
+- README.md
+
+========================
+REQUIREMENTS.TXT
+========================
+
+streamlit
+pandas
+python-dotenv
+email-validator
+yagmail
+jinja2
+
+========================
+FONCTIONNALITÉS PRINCIPALES
+========================
+
+1) CHATBOT DYNAMIQUE
+
+Utiliser st.session_state pour gérer :
+- step actuel
+- question index
+- réponses
+- progression
+- état lead gate
+- résultat final
+
+Le chat doit :
+- afficher les messages sous forme de bulles
+- bot à gauche
+- utilisateur à droite
+- animation typing simulée (spinner ou délai court)
+- autoscroll naturel
+
+Utiliser st.markdown + HTML custom avec unsafe_allow_html=True pour bulles propres.
+
+========================
+2) BARRE DE PROGRESSION
+========================
+
+Barre fine, design épuré.
+Accent color : #8e66c7.
+
+Calcul :
+- Questions = 0% → 75%
+- Lead gate (4 champs) = 75% → 90%
+- Résultat affiché = 100%
+
+Utiliser st.progress() MAIS wrapper dans une fonction update_progress() pour éviter bugs.
+
+Afficher pourcentage texte discret à droite.
+
+========================
+3) QUESTIONS (10 QUESTIONS / 3 RÉPONSES)
+========================
+
+Intégrer exactement ces textes :
+
+INTRO
+Bonjour 👋  
+En 2 minutes, je vais vous aider à mettre des mots (et des chiffres) sur ce que vous ressentez peut-être déjà dans votre organisation.
+
+Ne PAS mettre de question "Prêt ?".
+Démarrer directement Q1.
+
+INTRO
+
+Bonjour 👋  
+En 2 minutes, je vais vous aider à mettre des mots (et des chiffres) sur ce que vous ressentez peut-être déjà dans votre organisation.  
+Prêt ?
+
+- Oui
+
+Q1
+
+Aujourd’hui, pour piloter vos opérations au quotidien, vous vous appuyez principalement sur :
+
+- Principalement Excel  
+- Excel + plusieurs outils dispersés  
+- Un ERP bien structuré  
+
+Impact si Excel :
+
+Excel est un outil puissant — surtout entre de bonnes mains.  
+Mais dans beaucoup d’industries, il finit par devenir le centre névralgique… sans offrir la visibilité d’un vrai système de pilotage.
+
+Impact si Excel + outils :
+
+Multiplier les outils permet souvent d’aller vite au début.  
+Mais sans intégration claire, cela crée progressivement des zones floues où chacun travaille avec sa propre lecture de la réalité.
+
+
+Q2
+
+Aujourd’hui, combien de versions d’un même fichier circulent réellement dans votre organisation ?
+
+- Une seule version claire  
+- 2 à 3 versions selon les équipes  
+- Honnêtement, difficile à dire  
+
+Impact si 2–3 versions :
+
+Lorsque plusieurs versions coexistent, les décisions prennent mécaniquement plus de temps.  
+On passe de l’analyse… à la vérification.
+
+Impact si difficile à dire :
+
+Ne pas savoir quelle est la “bonne version” n’est pas un manque de rigueur.  
+C’est souvent le signe qu’un process a grandi plus vite que sa structure.
+
+
+Q3
+
+Chaque semaine, combien d’heures vos équipes consacrent-elles à consolider, vérifier ou recouper des données ?
+
+- Moins d’1h  
+- 1 à 3h  
+- Plus de 3h  
+
+Impact si 1–3h :
+
+3h par semaine représentent environ 150h par an.  
+À l’échelle d’un responsable ou d’une assistante, cela peut facilement représenter 8 000 à 10 000€ immobilisés… sans création de valeur directe.
+
+Impact si >3h :
+
+Au-delà de 3h par semaine, on dépasse souvent 200 à 300 heures par an.  
+Ce sont plusieurs semaines de travail consacrées non pas à piloter, mais à vérifier.
+
+
+Q4
+
+Les retards dans vos projets sont généralement :
+
+- Visibles immédiatement  
+- Identifiés lors d’un point hebdomadaire  
+- Découverts une fois qu’ils ont déjà un impact  
+
+Impact si hebdomadaire :
+
+Un point hebdomadaire est structurant.  
+Mais une semaine peut suffire à transformer un léger décalage en situation sous tension.
+
+Impact si découverts après impact :
+
+Découvrir un retard après coup n’est pas une erreur individuelle.  
+C’est souvent le signe qu’il manque un système d’alerte en amont.
+
+
+Q5
+
+Vos indicateurs clés sont aujourd’hui :
+
+- Automatiquement mis à jour  
+- Semi-manuellement consolidés  
+- Entièrement mis à jour à la main  
+
+Impact si semi :
+
+Chaque manipulation manuelle est une charge invisible.  
+Elle mobilise de l’attention, crée un risque d’erreur… et détourne du pilotage stratégique.
+
+Impact si manuel :
+
+30 minutes par jour de ressaisie représentent environ 110h par an.  
+À l’échelle d’une équipe, cela peut rapidement dépasser 10 000€ par an en temps mobilisé.
+
+
+Q6
+
+Si je vous demande maintenant le statut exact d’une deadline critique, vous avez besoin de :
+
+- Quelques secondes  
+- Quelques minutes  
+- Plus de 30 minutes  
+
+Impact si quelques minutes :
+
+Quelques minutes semblent anodines.  
+Mais multipliées par plusieurs vérifications quotidiennes, cela représente des dizaines d’heures par an consacrées uniquement à chercher l’information.
+
+Impact si 30 minutes :
+
+Lorsque vérifier une échéance prend 30 minutes,  
+cela signifie généralement que l’information existe… mais n’est pas structurée pour décider rapidement.
+
+
+Q7
+
+Est-ce que certaines demandes disparaissent temporairement avant d’être traitées ?
+
+- Jamais  
+- Rarement  
+- Oui, cela arrive régulièrement  
+
+Impact si rarement :
+
+Même rarement, une demande oubliée peut créer une chaîne d’ajustements imprévus.  
+Et souvent, c’est l’urgence qui révèle la faiblesse du process.
+
+Impact si régulièrement :
+
+Quand les demandes se perdent, le problème n’est pas humain.  
+C’est souvent l’absence d’un système clair de suivi et de priorisation.
+
+
+Q8
+
+Si la personne qui tient le fichier principal s’absente une semaine :
+
+- Aucun impact  
+- L’activité ralentit sensiblement  
+- L’organisation est réellement en difficulté  
+
+Impact si ralentit :
+
+Un ralentissement temporaire est courant.  
+Mais lorsqu’il dépend d’une seule personne, le risque organisationnel devient structurel.
+
+Impact si difficulté :
+
+Lorsque la connaissance repose sur une seule tête,  
+la continuité opérationnelle devient fragile — même avec des équipes compétentes.
+
+
+Q9
+
+Au cours des 12 derniers mois, avez-vous connu des urgences coûteuses ou des pénalités liées à un manque de visibilité ?
+
+- Non  
+- Une ou deux situations isolées  
+- Oui, plusieurs situations  
+
+Impact si isolées :
+
+Une seule urgence peut représenter plusieurs milliers d’euros.  
+Mais surtout, elle mobilise l’énergie des équipes en mode “réaction”.
+
+Impact si plusieurs :
+
+Lorsque les urgences deviennent répétitives,  
+cela indique souvent que le pilotage est plus réactif que prédictif.
+
+
+Q10
+
+Avec recul, vos process actuels vous semblent :
+
+- Robustes  
+- Corrects mais perfectibles  
+- Fragiles  
+
+Impact si perfectibles :
+
+C’est souvent à ce stade que les fuites invisibles commencent à s’installer.  
+Rien de dramatique… mais un potentiel d’optimisation réel.
+
+Impact si fragiles :
+
+Un process fragile ne coûte pas toujours cher immédiatement.  
+Mais il finit presque toujours par coûter cher au mauvais moment.
+
+
+RÉSULTAT — IMPACT ÉLEVÉ
+
+Impact estimé :
+
+Même 1 heure par jour consacrée à des tâches de consolidation ou de recherche d’information représente plus de 200 heures par an.  
+À 60€ de l’heure, cela peut facilement dépasser 12 000€ immobilisés — sans amélioration directe de la performance.
+
+La bonne nouvelle : ces heures ne sont pas perdues par manque de compétence.  
+Elles sont souvent récupérables avec une meilleure structuration.
+
+Chaque réponse vaut :
+0 / 1 / 2 points.
+
+========================
+4) SCORING
+========================
+
+Créer scoring.py avec :
+
+- calculate_score(responses)
+- calculate_subscores(responses)
+- determine_band(score)
+
+Banding proportionnel :
+Score max = 20 (10 questions * 2)
+- 0–6 → 🟢 Maîtrisé
+- 7–14 → 🟠 Sous tension
+- 15–20 → 🔴 Risque structurel
+
+Créer aussi get_top_leaks(subscores)
+
+========================
+5) LEAD GATE CONVERSATIONNEL
+========================
+
+Après Q10 :
+
+Demander successivement :
+- Prénom
+- Nom
+- Entreprise
+- Email (validation email-validator)
+
+Pas de checkbox.
+
+Sous le bouton final :
+Texte italique :
+"En soumettant ces informations, vous acceptez d’être recontacté au sujet de votre diagnostic."
+
+========================
+6) RÉSULTATS
+========================
+
+Afficher carte résultat élégante :
+
+Diagnostic — {Entreprise}
+
+Badge couleur selon band.
+
+Top 3 fuites.
+
+Impact estimé dynamique selon score :
+Inclure phrase sur 200h/an ≈ 12 000€ si score élevé.
+
+Bouton discret :
+“Proposer un créneau”
+→ affiche st.info() message simple.
+
+========================
+7) SAUVEGARDE CSV
+========================
+
+Créer storage.py :
+
+- append_to_csv(data)
+
+Créer dossier data/ automatiquement.
+
+Colonnes :
+timestamp
+prenom
+nom
+entreprise
+email
+q1…q10
+score
+band
+
+UTF-8 strict.
+
+========================
+8) EMAIL ADMIN
+========================
+
+Créer emailer.py :
+
+- send_admin_email(data)
+
+Utiliser yagmail.
+
+Variables d’environnement :
+ADMIN_EMAIL
+SMTP_USER
+SMTP_PASS
+
+Envoyer résumé HTML simple.
+
+Ne jamais crasher si erreur email.
+
+========================
+9) UTF-8
+========================
+
+Forcer UTF-8 partout.
+Utiliser encoding="utf-8" lors des écritures.
+
+========================
+10) MOBILE
+========================
+
+Ajouter CSS custom dans static/styles.css :
+
+- largeur max 700px centrée desktop
+- mobile full width
+- bulles max-width 80%
+- boutons full width mobile
+- input sticky bottom
+
+Inclure CSS via st.markdown.
+
+========================
+11) README
+========================
+
+Inclure :
+- instructions local
+- instructions Streamlit Cloud
+- variables d’environnement
+- commande run : streamlit run app.py
+
+========================
+IMPORTANT
+========================
+
+- Code clair, structuré.
+- Pas de hacks.
+- Pas de dépendances inutiles.
+- Ne pas surcomplexifier.
+- L’application doit fonctionner immédiatement après :
+  pip install -r requirements.txt
+  streamlit run app.py
+
+Génère tous les fichiers avec leur contenu complet.
