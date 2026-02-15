@@ -48,7 +48,7 @@ QUESTIONS = [
             (
                 "Honnêtement, difficile à dire",
                 2,
-                "Ne pas savoir quelle est la "bonne version" n'est pas un manque de rigueur.<br>C'est souvent le signe qu'un process a grandi plus vite que sa structure.",
+                "Ne pas savoir quelle est la &laquo;&nbsp;bonne version&nbsp;&raquo; n'est pas un manque de rigueur.<br>C'est souvent le signe qu'un process a grandi plus vite que sa structure.",
             ),
         ],
     },
@@ -162,7 +162,7 @@ QUESTIONS = [
             (
                 "Une ou deux situations isolées",
                 1,
-                "Une seule urgence peut représenter plusieurs milliers d'euros.<br>Mais surtout, elle mobilise l'énergie des équipes en mode "réaction".",
+                "Une seule urgence peut représenter plusieurs milliers d'euros.<br>Mais surtout, elle mobilise l'énergie des équipes en mode &laquo;&nbsp;réaction&nbsp;&raquo;.",
             ),
             (
                 "Oui, plusieurs situations",
