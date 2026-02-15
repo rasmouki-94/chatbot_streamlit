@@ -10,32 +10,18 @@ from jinja2 import Template
 HTML_TEMPLATE = Template(
     """
     <html>
-      <body style="font-family: Arial, sans-serif; line-height: 1.4;">
-        <h3 style="margin-bottom: 8px;">Nouveau diagnostic complété</h3>
-        <table cellpadding="6" cellspacing="0" border="1" style="border-collapse: collapse; font-size: 14px; margin-bottom: 20px;">
-          <tr><td><b>Prénom</b></td><td>{{ prenom }}</td></tr>
-          <tr><td><b>Nom</b></td><td>{{ nom }}</td></tr>
-          <tr><td><b>Entreprise</b></td><td>{{ entreprise }}</td></tr>
-          <tr><td><b>Email</b></td><td>{{ email }}</td></tr>
-          <tr><td><b>Score</b></td><td>{{ score }}/20</td></tr>
-          <tr><td><b>Bande</b></td><td>{{ band }}</td></tr>
-        </table>
-
-        <h3 style="margin-bottom: 8px;">Détail des réponses</h3>
-        <table cellpadding="6" cellspacing="0" border="1" style="border-collapse: collapse; font-size: 14px; width: 100%;">
-          <tr style="background: #f5f5f7;">
-            <th style="text-align: left; padding: 8px;">#</th>
-            <th style="text-align: left; padding: 8px;">Question</th>
-            <th style="text-align: left; padding: 8px;">Réponse</th>
-          </tr>
-          {% for item in details %}
-          <tr>
-            <td style="padding: 8px;">{{ item.num }}</td>
-            <td style="padding: 8px;">{{ item.label }}</td>
-            <td style="padding: 8px;">{{ item.answer }}</td>
-          </tr>
-          {% endfor %}
-        </table>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; font-size: 14px;">
+        <p><b>Nouveau diagnostic complété</b></p>
+        <p>
+          {{ prenom }} {{ nom }}<br>
+          {{ entreprise }}<br>
+          {{ email }}<br>
+          Score : {{ score }}/20 — {{ band }}
+        </p>
+        <p><b>Détail des réponses</b></p>
+        {% for item in details %}
+        <p>{{ item.num }}. {{ item.label }} : {{ item.answer }}</p>
+        {% endfor %}
       </body>
     </html>
     """
