@@ -5,6 +5,7 @@ import time
 from datetime import datetime, timezone
 
 import streamlit as st
+import streamlit.components.v1 as components
 from dotenv import load_dotenv
 from email_validator import EmailNotValidError, validate_email
 
@@ -265,6 +266,26 @@ def update_progress() -> None:
         st.markdown(f"<div class='progress-label'>{st.session_state.progress}%</div>", unsafe_allow_html=True)
 
 
+def auto_scroll() -> None:
+    """Inject JS via components.html to scroll the chat window in the parent frame."""
+    components.html(
+        """
+        <script>
+            function doScroll() {
+                var el = window.parent.document.querySelector('.chat-window');
+                if (el) { el.scrollTop = el.scrollHeight; }
+            }
+            doScroll();
+            setTimeout(doScroll, 100);
+            setTimeout(doScroll, 300);
+            setTimeout(doScroll, 600);
+            setTimeout(doScroll, 1200);
+        </script>
+        """,
+        height=0,
+    )
+
+
 def render_chat() -> None:
     chunks = []
     for message in st.session_state.chat:
@@ -282,16 +303,24 @@ def render_chat() -> None:
     html_chat = (
         "<div id='chat-window' class='chat-window'>"
         + "".join(chunks)
+        + "<div id='chat-anchor'></div>"
         + "</div>"
         + """<script>
             function scrollChat() {
-                const el = window.parent.document.getElementById('chat-window');
+                // Try multiple selectors to handle Streamlit iframe structure
+                var el = document.getElementById('chat-window');
+                if (!el) {
+                    var els = window.parent.document.querySelectorAll('[id="chat-window"]');
+                    if (els.length > 0) el = els[els.length - 1];
+                }
                 if (el) { el.scrollTop = el.scrollHeight; }
             }
             scrollChat();
-            setTimeout(scrollChat, 100);
+            setTimeout(scrollChat, 50);
+            setTimeout(scrollChat, 150);
             setTimeout(scrollChat, 300);
-            setTimeout(scrollChat, 600);
+            setTimeout(scrollChat, 500);
+            setTimeout(scrollChat, 1000);
         </script>"""
     )
     st.markdown(html_chat, unsafe_allow_html=True)
@@ -399,14 +428,20 @@ def main() -> None:
         st.markdown("<div class='app-shell'>", unsafe_allow_html=True)
         update_progress()
         render_chat()
+        auto_scroll()
         st.markdown("</div>", unsafe_allow_html=True)
-        time.sleep(0.6)
+        time.sleep(2)
         st.session_state.show_typing = False
         st.rerun()
 
+    st.markdown(
+        "<h2 class='app-title'>Identifiez vos pertes de temps et d'argent en quelques questions</h2>",
+        unsafe_allow_html=True,
+    )
     st.markdown("<div class='app-shell'>", unsafe_allow_html=True)
     update_progress()
     render_chat()
+    auto_scroll()
 
     st.markdown("<div class='input-sticky'>", unsafe_allow_html=True)
     if st.session_state.step == "questions":
@@ -463,11 +498,17 @@ def main() -> None:
             unsafe_allow_html=True,
         )
 
-        if st.button("Proposer un créneau", use_container_width=True):
-            st.info("Merci. Un expert vous recontactera rapidement au sujet de votre diagnostic.")
+        st.markdown(
+            '<a href="https://www.linkedin.com/in/arsmouk-data-analyst/" target="_blank" class="linkedin-cta">Discutons sur LinkedIn</a>',
+            unsafe_allow_html=True,
+        )
 
     st.markdown("</div>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(
+        '<p class="dev-credit">Développé par <a href="https://www.linkedin.com/in/arsmouk-data-analyst/" target="_blank">Abd Arsmouk</a></p>',
+        unsafe_allow_html=True,
+    )
 
 
 if __name__ == "__main__":
